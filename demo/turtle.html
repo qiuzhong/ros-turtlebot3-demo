@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Turtlesim demo via ros2-web-bridge</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script src="https://static.robotwebtools.org/roslibjs/current/roslib.js"></script>
+</head>
+  <body>
+    
+    <h1>Button to control turtlesim's motion</h1>
+    <div id="control" class="container">
+      <div><button id="left" class="btn btn-info">Left</button></div>
+      <div><button id="right" class="btn btn-info">Right</button></div>
+    </div>
+
+    <script>
+      let ros = new ROSLIB.Ros();
+      ros.connect('ws://localhost:9090');
+
+      let topic = new ROSLIB.Topic({
+        ros:ros,
+        name: '/turtle1/cmd_vel',
+        messageType: 'geometry_msgs/msg/Twist'
+      });
+
+      let leftBtn = document.getElementById('left');
+      leftBtn.onclick = function() {
+        console.log('move left');
+
+        let msgLeft = {
+          linear: {x: -2.0, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+
+        setTimeout(() => {
+          topic.publish(msgLeft);
+        }, 1000);
+        
+      };
+
+      let rightBtn = document.getElementById('right');
+      rightBtn.onclick = function() {
+        console.log('move right');
+
+        let msgRight = {
+          linear: {x: 2.0, y: 0.0, z: 0.0},
+          angular: {x: 2.0, y: 0.0, z: 0.0}
+        };
+
+        setTimeout(() => {
+          topic.publish(msgRight);
+        }, 2000);    
+      }
+    </script>
+  </body>
+</html>
