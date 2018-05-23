@@ -1,6 +1,6 @@
 'use strict';
 
-const rclnodejs = require('../index.js');
+const rclnodejs = require('rclnodejs');
 
 rclnodejs.init().then(() => {
   const node = rclnodejs.createNode('turtle_master');

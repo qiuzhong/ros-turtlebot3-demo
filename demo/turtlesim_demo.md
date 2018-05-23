@@ -16,7 +16,7 @@ $ sudo apt install ros-kinetic-turtlesim
 
 * In terminal 2, run `turtlesim`
   ```
-  $ rosrun turltlesim turtlesim_node
+  $ rosrun turtlesim turtlesim_node
   ```
 
 * In terminal 3, run `teleop_key`
