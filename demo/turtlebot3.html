@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Turtlesim demo via ros2-web-bridge</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+    integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script src="https://static.robotwebtools.org/roslibjs/current/roslib.js"></script>
+</head>
+  <body>
+    <div class="container">
+      <h1>Button to control turtlesim's motion</h1>
+    </div>
+    
+    <div id="control" class="container">
+      <div><button id="left" class="btn btn-info">Left</button></div>
+      <div><button id="stop" class="btn btn-info">Stop</button></div>
+      <div><button id="right" class="btn btn-info">Right</button></div>
+    </div>
+
+    <script>
+      let ros = new ROSLIB.Ros();
+      ros.connect('ws://localhost:9090');
+
+      let topic = new ROSLIB.Topic({
+        ros:ros,
+        name: '/cmd_vel',
+        messageType: 'geometry_msgs/msg/Twist'
+      });
+
+      let leftBtn = document.getElementById('left');
+      leftBtn.onclick = function() {
+        console.log('move left');
+
+        let msgLeft = {
+          linear: {x: -0.20, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+
+        window.leftTimer = setInterval(() => {
+          topic.publish(msgLeft);
+        }, 100);
+        
+      };
+
+      let rightBtn = document.getElementById('right');
+      rightBtn.onclick = function() {
+        console.log('move right');
+
+        let msgRight = {
+          linear: {x: 0.20, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+
+        window.rightTimer = setInterval(() => {
+          topic.publish(msgRight);
+        }, 100);
+      }
+
+      let stopButton = document.getElementById('stop');
+      stopButton.onclick = function() {
+        console.log('stop the robot');
+
+        let msgStop = {
+          linear: {x: 0.0, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+        
+        clearInterval(window.leftTimer);
+        clearInterval(window.rightTimer);
+        topic.publish(msgStop);
+      }
+    </script>
+  </body>
+</html>
