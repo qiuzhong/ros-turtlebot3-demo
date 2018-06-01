@@ -4,12 +4,19 @@ ROS1 Turtlebot3 Gazebo simulator demo
 ## Installation
 Install this package by source, it doesn't work if you install it by the `apt` way.
 ```
+$ sudo apt install ros-kinetic-turtlebot3-msgs
 $ source /opt/ros/kinetic/setup.bash
 $ cd ~/catkin_ws/src
 $ git clone https://github.com/ROBOTIS-GIT/turtlebot3_simulations.git
 $ git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
 $ cd ~/catkin_ws
 $ catkin_make
+```
+
+## Configuration
+Set TURTLEBOT3_MODEL environment variable
+```
+$ echo "export TURTLEBOT3_MODEL=burger" >> ~/.bashrc
 ```
 
 ## Run and control turtlebot3 gazebo simulator
@@ -24,6 +31,8 @@ $ roslaunch turtlebot3_gazebo turtlebot3_empty_world.launch
 ### Try the teleop_key controller:
 In terminal 2:
 ```
+$ cd ~/catkin_ws
+$ source devel/setup.bash
 $ roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
 ```
 
