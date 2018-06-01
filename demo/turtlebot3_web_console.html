@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Turtlebot3 Burger Web Console</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/eventemitter2.min.js"></script>
+    <script src="js/roslib.js"></script>
+    <script src="js/easeljs.js"></script>
+    <script src="js/ros2d.js"></script>
+    <script src="js/ros2dmap.js"></script>
+    <script src="js/three.js"></script>
+    <script src="js/ros3d.js"></script>
+    <script src="js/chart.js"></script>
+    <script src="js/ros3dmap.js"></script>
+  </head>
+  <body>
+    <div data-role="page" id="home" data-title="Home" data-icon="home">
+      <div data-role="content">
+        <div id="three-d-map" class="map3D"></div>
+        <div id="two-d-map" class="map2D"></div>
+        <div id="mjpeg" class="border"></div>
+      </div>
+    </div>
+
+    <div><button id="left">left</button></div>
+    <div><button id="stop">Stop</button></div>
+    <div><button id="right">Right</button></div>
+    <script>
+      var hasWebGL = window.WebGLRenderingContext ? true : false;
+      var pageName = 'Ros Web Console';
+      var bridgeHost = '127.0.0.1';
+      var bridgePort = 9090;
+
+      var ros = new ROSLIB.Ros();
+      ros.on('connection', function() {
+        console.log('bridge connected');
+      });
+      ros.on('error', function(data) {
+        console.log('error');
+      });
+      ros.on('closed', function() {
+        console.log('bridge closed');
+      });
+
+      ros.connect('ws://' + bridgeHost + ':' + bridgePort);
+
+      var topics = [];
+      ros.getTopics(function(response) {
+        // console.log(response.topics);
+        for (let i = 0; i < response.topics.length; i++) {
+          // console.log(response.topics[i]);
+          topics.push(response.topics[i]);
+        }
+      });
+
+      var poseTopic = new ROSLIB.Topic({
+        ros: ros,
+        name: '/odom',
+        messageType: 'nav_msgs/Odometry'
+      });
+
+      var velocityTopic = new ROSLIB.Topic({
+        ros: ros,
+        name: '/cmd_vel',
+        messageType: 'geometry_msgs/Twist'
+      });
+
+      var linearData = new plotData();
+      var velocityData = new plotData();
+
+      var map2dHome = new ROS2DMap(ros, {
+        width: 720, height: 480
+      });
+
+      var map3dHome = new ROS3DMap(ros, {
+        width: 720, height: 480
+      });
+      // var mypose;
+      poseTopic.subscribe(function(message) {
+        // console.log('pose:');
+        // console.log(message);
+        // mypose = message;
+        // poseTopic.unsubscribe();
+        let pose = message.pose.pose.position;
+        let orientation = message.pose.pose.orientation;
+        map2dHome.update(pose, orientation);
+      });
+
+      velocityTopic.subscribe(function(message) {
+        // console.log(velocity);
+        // console.log(message);
+        // velocityTopic.unsubscribe();
+      });
+
+      var leftBtn = document.getElementById('left');
+      leftBtn.onclick = function() {
+        console.log('start moving left');
+
+        let msgLeft = {
+          linear: {x: -0.05, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+
+        window.leftMoveTimer = setInterval(() => {
+          velocityTopic.publish(msgLeft);
+        }, 100);
+      };
+
+      var stopBtn = document.getElementById('stop');
+      stopBtn.onclick = function() {
+        console.log('stop');
+
+        if (window.leftMoveTimer) {
+          clearInterval(window.leftMoveTimer);
+          window.leftMoveTimer = undefined;
+        }
+        if (window.rightMoveTimer) {
+          clearInterval(window.rightMoveTimer);
+          window.rightMoveTimer = undefined;
+        }
+        
+        let stopMsg = {
+          linear: {x: 0.0, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+        velocityTopic.publish(stopMsg);
+      };
+      
+      var rightBtn = document.getElementById('right');
+      rightBtn.onclick = function() {
+        console.log('start moving right');
+        let msgRight = {
+          linear: {x: 0.05, y: 0.0, z: 0.0},
+          angular: {x: 0.0, y: 0.0, z: 0.0}
+        };
+
+        window.rightMoveTimer = setInterval(() => {
+          velocityTopic.publish(msgRight)
+        })
+      }
+    </script>
+  </body>
+</html>
