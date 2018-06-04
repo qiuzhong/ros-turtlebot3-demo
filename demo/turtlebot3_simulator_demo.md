@@ -63,6 +63,12 @@ $ roslaunch turtlebot3_teleop turtlebot3_teleop_key.launch
   $ http-server .
   ```
 
+## Or you can launch `rosbridge_server` from ROS1 package:
+```
+$ roslaunch rosbridge_server rosbridge_websocket.launch
+```
+It's like the `ros2-web-bridge` server.
+
 * Access `http://127.0.0.1:8080/turtlebot3.html`, click `Left` and `Right` buttons
   **Notice**: There is a bug: clicking the buttons for the first time will not work, it will work sencond time.
 
